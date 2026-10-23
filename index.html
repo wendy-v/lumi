@@ -573,6 +573,7 @@
   canvas { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
   #fieldCanvas { touch-action: pan-y; }
   #fieldCanvas.lit, #fieldCanvas.zoomed { touch-action: none; }
+  @media (pointer: coarse) { #zoomIn, #zoomOut { display: none; } .field-stage:has(#fieldCanvas:not(.zoomed)) #zoomReset, .field-stage:has(#fieldCanvas:not(.zoomed)) .zsep { display: none; } }
   @media (pointer: coarse) {
     html { touch-action: manipulation; }
     .btn.sm, .btn.icon-sm { min-height: 40px; }
@@ -629,6 +630,7 @@
   #greetLine { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   @media (max-width: 600px) { #greetLine { display: none; } }
   @media (max-width: 600px) { #launchBtn .cl { display: none; } }
+  @media (max-width: 600px) { #newPhoton .np { display: none; } }
   .reset-row { margin: 10px 0 0; display: flex; justify-content: flex-end; }
   .wd-opt:hover { background: #231e30; color: var(--fg); }
   .wd-opt[aria-pressed=true] { background: rgba(255, 179, 71, .14); color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
@@ -672,7 +674,7 @@
         <div class="stat"><b id="stHome">0</b><span>At home</span></div>
         <div class="stat" id="stNeedBox"><b id="stNeed">0</b><span>Need care</span></div>
         <div class="stat" id="stSkBox"><b id="stSk">0</b><span>Darklings</span></div>
-        <button class="btn primary" id="newPhoton"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14"/></svg>Create Photon</button>
+        <button class="btn primary" id="newPhoton"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14"/></svg>Create<span class="np"> Photon</span></button>
       </div>
     </header>
     <div class="field-top">
@@ -1200,11 +1202,17 @@
     const g = bgm.master.gain, now = audioCtx.currentTime; g.cancelScheduledValues(now); g.setValueAtTime(g.value, now);
     g.linearRampToValueAtTime(bgmMuted ? 0 : tune ? 0 : BGM_VOL, now + (bgmMuted ? .08 : tune ? .5 : 1.2));
   }
+  /* iOS only allows audio to start from click or touchend and mutes Web Audio on the silent switch, so keep retrying on every gesture until the context is running */
+  const UNLOCK_EVENTS = ["pointerdown", "pointerup", "touchend", "click", "keydown"];
   function unlockAudio() {
-    if (audioUnlocked) { return; }
-    audioUnlocked = true; ["pointerdown", "keydown"].forEach(ev => document.removeEventListener(ev, unlockAudio, true)); startBgm();
+    const a = getAudio(); if (!a) { return; }
+    try { if (navigator.audioSession) { navigator.audioSession.type = "playback"; } } catch (e) { /* unsupported */ }
+    if (a.state !== "running") { a.resume().catch(() => {}); }
+    try { const src = a.createBufferSource(); src.buffer = a.createBuffer(1, 1, 22050); src.connect(a.destination); src.start(0); } catch (e) { /* ignore */ }
+    if (!audioUnlocked) { audioUnlocked = true; startBgm(); a.onstatechange = () => { if (a.state === "running") { UNLOCK_EVENTS.forEach(ev => document.removeEventListener(ev, unlockAudio, true)); } }; }
+    if (a.state === "running") { UNLOCK_EVENTS.forEach(ev => document.removeEventListener(ev, unlockAudio, true)); }
   }
-  ["pointerdown", "keydown"].forEach(ev => document.addEventListener(ev, unlockAudio, true));
+  UNLOCK_EVENTS.forEach(ev => document.addEventListener(ev, unlockAudio, true));
   document.addEventListener("visibilitychange", () => { if (!audioCtx) { return; } if (document.hidden) { audioCtx.suspend(); } else { audioCtx.resume(); } });
   /* Photon voices: a tiny synthesized blip whenever a photon talks */
   let lastChirp = 0;
