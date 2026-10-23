@@ -1,6 +1,9 @@
 <meta charset="utf-8">
 <title>Lumi</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d0b12">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3CradialGradient id='g' cx='.35' cy='.3' r='.8'%3E%3Cstop offset='0' stop-color='%23fff'/%3E%3Cstop offset='.5' stop-color='%23c7a6ff'/%3E%3Cstop offset='1' stop-color='%23775bd6'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='32' height='32' fill='%230d0b12'/%3E%3Ccircle cx='16' cy='16' r='10' fill='url(%23g)'/%3E%3Ccircle cx='12.5' cy='17' r='1.6' fill='%231b1022'/%3E%3Ccircle cx='19.5' cy='17' r='1.6' fill='%231b1022'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
   /* Tactical console on a violet-tinted charcoal: amber for action and focus, violet for the Pylon and energy, red for anything that needs care. Single dark look by design. */
@@ -561,9 +564,71 @@
   .dust-badge svg { flex: none; filter: drop-shadow(0 0 5px rgba(255, 179, 71, .55)); }
   .cta-col { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
   .edit-head { position: relative; }
-  .edit-head > .dust-badge { position: absolute; top: 0; right: 0; }
+  .edit-head > .dust-badge { position: absolute; top: max(20px, env(safe-area-inset-top, 0px)); right: 0; height: 34px; padding-block: 0; }
+  .tw[hidden] { display: none; }
+  .edit-head > .head-left { padding-right: 96px; }
   .cta-wrap { display: inline-flex; }
   .cta-wrap .btn:disabled { pointer-events: none; }
+  body { -webkit-tap-highlight-color: transparent; }
+  canvas { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  #fieldCanvas { touch-action: pan-y; }
+  #fieldCanvas.lit, #fieldCanvas.zoomed { touch-action: none; }
+  @media (pointer: coarse) {
+    html { touch-action: manipulation; }
+    .btn.sm, .btn.icon-sm { min-height: 40px; }
+    .btn.icon-sm { min-width: 40px; }
+    .chip2 { min-height: 40px; }
+    .wd-row { min-height: 48px; }
+  }
+  @media (max-width: 700px) {
+    .field-stage { height: 340px; }
+  }
+  .wd-hero { align-items: start; }
+  .wd-right { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .edit-head { position: sticky; top: 0; z-index: 30; background: var(--bg); margin-top: -20px; padding-top: max(20px, env(safe-area-inset-top, 0px)); padding-bottom: 12px; }
+  .edit-body { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; align-items: stretch; }
+  .edit-left, .edit-right { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .wd-stage-m { flex: 1; min-height: 280px; }
+  @media (min-width: 961px) {
+    #pageEdit { height: calc(100vh - 40px); height: calc(100dvh - 40px); }
+    body:has(#pageEdit:not([hidden])) { overflow: hidden; }
+    .edit-head { flex: none; }
+    .edit-body { flex: 1; min-height: 0; }
+    .edit-left { min-height: 0; }
+    .edit-right { overflow-y: auto; min-height: 0; padding-right: 6px; scrollbar-width: thin; }
+    .wd-looks { flex: none; }
+  }
+  #profileSec .pf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; }
+  #profileSec .pf-col > .pf-fld:first-child { grid-column: 1 / -1; }
+  #profileSec .pf-col, #profileSec .pf-2 { display: contents; }
+  #profileSec .pf-bio { grid-column: 1 / -1; }
+  #profileSec .pf-bio textarea { min-height: 84px; }
+  .wd-looks { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 14px 12px; padding: 16px; }
+  .wd-looks .mod-head { grid-column: 1; grid-row: 1; }
+  .wd-looks .bank-head { grid-column: 2; grid-row: 1; justify-self: end; }
+  .wd-looks .looks-grid, .wd-looks .empty { grid-column: 1 / -1; grid-row: 2; }
+  @media (max-width: 960px) {
+    #pageEdit .edit-body, #pageEdit .edit-left, #pageEdit .edit-right { display: contents; }
+    .wd-stage-m { flex: none; }
+    #pageEdit .wd-stage-m { order: 1; }
+    #pageEdit #profileSec { order: 2; }
+    #pageEdit .wd-list { order: 3; }
+    #pageEdit #persSec { order: 4; }
+    #pageEdit .wd-looks { order: 5; }
+  }
+  @media (max-width: 480px) {
+    .stat { padding: 8px 12px; }
+    #newPhoton { padding-inline: 14px; }
+  }
+  .stats { flex-wrap: nowrap; overflow: hidden; min-width: 0; }
+  .stats .stat { flex: none; }
+  .stats .stat[hidden] { display: none; }
+  #newPhoton { flex: none; }
+  @media (max-width: 560px) { #flightPill { display: none; } .edit-head { gap: 8px; } }
+  .greet-t { min-width: 0; }
+  #greetLine { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (max-width: 600px) { #greetLine { display: none; } }
+  @media (max-width: 600px) { #launchBtn .cl { display: none; } }
   .reset-row { margin: 10px 0 0; display: flex; justify-content: flex-end; }
   .wd-opt:hover { background: #231e30; color: var(--fg); }
   .wd-opt[aria-pressed=true] { background: rgba(255, 179, 71, .14); color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
@@ -724,58 +789,60 @@
         </div>
       </div>
     </div>
-    <div class="wd-hero">
-      <section class="module wd-stage-m" aria-label="Preview">
-        <div class="viewport wd-stage"><span class="vp-tag">Preview</span><canvas id="prevCanvas" aria-label="Live preview of this photon"></canvas><span class="wd-sum" id="wdSum"></span></div>
-      </section>
-      <section class="module wd-list" aria-label="Wardrobe">
-        <div class="mod-head"><h2>Wardrobe</h2><span class="lab">Tap a row to change it</span></div>
-        <div class="wd-scroll" id="wardrobe">
-        <div class="wd-item" data-row="color"><button type="button" class="wd-row" aria-expanded="false"><canvas class="ic" width="56" height="56" aria-hidden="true"></canvas><span class="nm">Color</span><span class="cv"></span><span class="ch" aria-hidden="true">&#8250;</span></button><div class="wd-drawer" hidden><div class="cp-wrap"><div class="row" id="swatches"><button type="button" class="cp-trigger" id="color" aria-label="Custom color" aria-haspopup="dialog" aria-expanded="false" aria-controls="cpPop"><span class="cp-chip"></span><span class="cp-hex" id="hexVal"></span><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></div></div></div></div>
-        <div class="wd-item" data-row="eyes"><button type="button" class="wd-row" aria-expanded="false"><canvas class="ic" width="56" height="56" aria-hidden="true"></canvas><span class="nm">Eyes</span><span class="cv"></span><span class="ch" aria-hidden="true">&#8250;</span></button><div class="wd-drawer" hidden><div class="wd-grid" data-grid="eyes" role="group" aria-label="eyes"></div></div></div>
-        <div class="wd-item" data-row="mood"><button type="button" class="wd-row" aria-expanded="false"><canvas class="ic" width="56" height="56" aria-hidden="true"></canvas><span class="nm">Mood</span><span class="cv"></span><span class="ch" aria-hidden="true">&#8250;</span></button><div class="wd-drawer" hidden><div class="wd-grid" data-grid="mood" role="group" aria-label="mood"></div></div></div>
-        <div class="wd-item" data-row="markings"><button type="button" class="wd-row" aria-expanded="false"><canvas class="ic" width="56" height="56" aria-hidden="true"></canvas><span class="nm">Markings</span><span class="cv"></span><span class="ch" aria-hidden="true">&#8250;</span></button><div class="wd-drawer" hidden><div class="wd-grid" data-grid="markings" role="group" aria-label="markings"></div></div></div>
-        <div class="wd-item" data-row="size"><button type="button" class="wd-row" aria-expanded="false"><canvas class="ic" width="56" height="56" aria-hidden="true"></canvas><span class="nm">Size</span><span class="cv"></span><span class="ch" aria-hidden="true">&#8250;</span></button><div class="wd-drawer" hidden><div class="wd-grid" data-grid="size" role="group" aria-label="size"></div></div></div>
-        <div class="wd-item" data-row="trail"><button type="button" class="wd-row" aria-expanded="false"><canvas class="ic" width="56" height="56" aria-hidden="true"></canvas><span class="nm">Trail</span><span class="cv"></span><span class="ch" aria-hidden="true">&#8250;</span></button><div class="wd-drawer" hidden><div class="wd-grid" data-grid="trail" role="group" aria-label="trail"></div></div></div>
-        <div class="wd-item" data-row="accessory"><button type="button" class="wd-row" aria-expanded="false"><canvas class="ic" width="56" height="56" aria-hidden="true"></canvas><span class="nm">Accessory</span><span class="cv"></span><span class="ch" aria-hidden="true">&#8250;</span></button><div class="wd-drawer" hidden><div class="wd-grid" data-grid="accessory" role="group" aria-label="accessory"></div></div></div>
-        </div>
-      </section>
-    </div>
-    <div class="wd-lower">
-      <section class="module">
-        <div class="mod-head"><h2>Profile</h2></div>
-        <div class="pf-grid prof">
-          <div class="pf-col">
-            <div class="pf-fld"><div class="lab-row"><label for="pName">Name</label><button type="button" class="gen" id="genName" aria-label="Generate a name"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true" focusable="false"><path d="M12 3v7M12 14v7M3 12h7M14 12h7"/></svg>Generate</button></div><input type="text" id="pName" maxlength="24" autocomplete="off" aria-describedby="pNameErr"><span class="err" id="pNameErr" hidden>Give this photon a name.</span></div>
-            <div class="pf-2">
-              <div class="pf-fld"><label class="lab" for="pDob">Birthday</label><input type="date" id="pDob"></div>
-              <div class="pf-fld"><span class="lab-info"><label class="lab" for="pConst">Faction</label><button type="button" class="info" id="factionInfo" aria-label="About Faction" data-tip="Which faction this photon belongs to. It sets the flavor of the generated bio. It doesn't change how the photon moves."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7.5"/><path d="M8 7v4"/><circle cx="8" cy="4.75" r=".6" fill="currentColor"/></svg></button></span><select id="pConst"></select></div>
+    <div class="edit-body">
+      <div class="edit-left">
+        <section class="module wd-stage-m" aria-label="Preview">
+          <div class="viewport wd-stage"><span class="vp-tag">Preview</span><canvas id="prevCanvas" aria-label="Live preview of this photon"></canvas><span class="wd-sum" id="wdSum"></span></div>
+        </section>
+        <section class="module wd-looks">
+          <div class="mod-head" style="flex: none"><h2>Saved looks <span class="muted" id="looksCount"></span></h2></div>
+          <p class="empty" id="looksEmpty" hidden>No saved looks yet. Save one to reuse it on any photon.</p>
+          <div class="looks-grid" id="looks"></div>
+          <div class="bank-head"><button class="btn tertiary sm" id="save">Save Look</button><form class="look-form" id="lookForm" hidden><input type="text" id="lookName" aria-label="Look name" maxlength="24"><button class="btn tertiary sm" type="button" id="lookCancel">Cancel</button><button class="btn primary sm" type="submit">Save</button></form></div>
+        </section>
+      </div>
+      <div class="edit-right">
+        <section class="module" id="profileSec">
+          <div class="mod-head"><h2>Profile</h2></div>
+          <div class="pf-grid prof">
+            <div class="pf-col">
+              <div class="pf-fld"><div class="lab-row"><label for="pName">Name</label><button type="button" class="gen" id="genName" aria-label="Generate a name"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true" focusable="false"><path d="M12 3v7M12 14v7M3 12h7M14 12h7"/></svg>Generate</button></div><input type="text" id="pName" maxlength="24" autocomplete="off" aria-describedby="pNameErr"><span class="err" id="pNameErr" hidden>Give this photon a name.</span></div>
+              <div class="pf-2">
+                <div class="pf-fld"><label class="lab" for="pDob">Birthday</label><input type="date" id="pDob"></div>
+                <div class="pf-fld"><span class="lab-info"><label class="lab" for="pConst">Faction</label><button type="button" class="info" id="factionInfo" aria-label="About Faction" data-tip="Which faction this photon belongs to. It sets the flavor of the generated bio. It doesn't change how the photon moves."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7.5"/><path d="M8 7v4"/><circle cx="8" cy="4.75" r=".6" fill="currentColor"/></svg></button></span><select id="pConst"></select></div>
+              </div>
             </div>
+            <div class="pf-bio"><div class="lab-row"><label for="pBio">Bio</label><button type="button" class="gen" id="genBio" aria-label="Generate a bio"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true" focusable="false"><path d="M12 3v7M12 14v7M3 12h7M14 12h7"/></svg>Generate</button></div><textarea id="pBio" rows="3" autocomplete="off" aria-describedby="bioTraits"></textarea><div class="traits" id="bioTraits" aria-live="polite"></div></div>
           </div>
-          <div class="pf-bio"><div class="lab-row"><label for="pBio">Bio</label><button type="button" class="gen" id="genBio" aria-label="Generate a bio"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true" focusable="false"><path d="M12 3v7M12 14v7M3 12h7M14 12h7"/></svg>Generate</button></div><textarea id="pBio" rows="3" autocomplete="off" aria-describedby="bioTraits"></textarea><div class="traits" id="bioTraits" aria-live="polite"></div></div>
-        </div>
-      </section>
-      <section class="module">
-        <div class="mod-head"><h2>Personality</h2></div>
-        <div class="pers-grid">
-          <div class="pers-one"><div class="pers-top"><span class="lab-info"><label class="lab" for="slChatty">Chatty</label><button type="button" class="info" id="infChatty" aria-label="About Chatty" data-tip="How much it talks. Higher means more speech bubbles and chatter."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7.5"/><path d="M8 7v4"/><circle cx="8" cy="4.75" r=".6" fill="currentColor"/></svg></button></span><span class="readout" id="slChattyV"></span></div><input type="range" id="slChatty" min="0" max="100"></div>
-          <div class="pers-one"><div class="pers-top"><span class="lab-info"><label class="lab" for="slBrave">Brave</label><button type="button" class="info" id="infBrave" aria-label="About Brave" data-tip="How it handles Darklings. Brave photons hold their ground longer before running away."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7.5"/><path d="M8 7v4"/><circle cx="8" cy="4.75" r=".6" fill="currentColor"/></svg></button></span><span class="readout" id="slBraveV"></span></div><input type="range" id="slBrave" min="0" max="100"></div>
-          <div class="pers-one"><div class="pers-top"><span class="lab-info"><label class="lab" for="slCurious">Curious</label><button type="button" class="info" id="infCurious" aria-label="About Curious" data-tip="How strongly it is drawn to the light. Higher means it follows the light from farther away."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7.5"/><path d="M8 7v4"/><circle cx="8" cy="4.75" r=".6" fill="currentColor"/></svg></button></span><span class="readout" id="slCuriousV"></span></div><input type="range" id="slCurious" min="0" max="100"></div>
-          <div class="pers-one"><div class="pers-top"><span class="lab-info"><label class="lab" for="slSocial">Social</label><button type="button" class="info" id="infSocial" aria-label="About Social" data-tip="How much it seeks out friends. Higher means it joins groups and makes friends faster."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7.5"/><path d="M8 7v4"/><circle cx="8" cy="4.75" r=".6" fill="currentColor"/></svg></button></span><span class="readout" id="slSocialV"></span></div><input type="range" id="slSocial" min="0" max="100"></div>
-        </div>
-        <div class="pers-one"><div class="pers-top"><span class="lab-info"><label class="lab" for="rate">Heart rate</label><button type="button" class="info" id="infRate" aria-label="About Heart rate" data-tip="How fast its glow pulses. A faster heartbeat also makes it move a little quicker."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7.5"/><path d="M8 7v4"/><circle cx="8" cy="4.75" r=".6" fill="currentColor"/></svg></button></span><span class="readout" id="rateVal"></span></div><input type="range" id="rate" min="40" max="200"></div>
-        <div class="pers-grp">
-          <div class="pers-one"><span class="lab-info"><span class="lab">Voice</span><button type="button" class="info" id="infVoice" aria-label="About Voice" data-tip="The little sound it makes when it talks. None keeps it quiet."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7.5"/><path d="M8 7v4"/><circle cx="8" cy="4.75" r=".6" fill="currentColor"/></svg></button></span><div class="opt-chips" id="voices"><button type="button" class="chip2" data-voice="none" aria-pressed="false">None</button><button type="button" class="chip2" data-voice="pip" aria-pressed="false">Pip</button><button type="button" class="chip2" data-voice="bloop" aria-pressed="false">Bloop</button><button type="button" class="chip2" data-voice="hum" aria-pressed="false">Hum</button><button type="button" class="chip2" data-voice="whistle" aria-pressed="false">Whistle</button></div></div>
-          <div class="pers-one"><span class="lab-info"><span class="lab">Lightspeed</span><button type="button" class="info" id="lsInfo" aria-label="About Lightspeed" data-tip="Lightspeed makes this photon dash across the field in short bursts, up to 4x its normal speed, and each dash uses a little energy."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7.5"/><path d="M8 7v4"/><circle cx="8" cy="4.75" r=".6" fill="currentColor"/></svg></button></span><div class="opt-chips"><button type="button" class="chip2" data-ls="off" aria-pressed="true">Off</button><button type="button" class="chip2" data-ls="on" aria-pressed="false">On</button></div></div>
-        </div>
-      </section>
+        </section>
+        <section class="module wd-list" aria-label="Wardrobe">
+          <div class="mod-head"><h2>Wardrobe</h2><span class="lab">Tap a row to change it</span></div>
+          <div class="wd-scroll" id="wardrobe">
+          <div class="wd-item" data-row="color"><button type="button" class="wd-row" aria-expanded="false"><canvas class="ic" width="56" height="56" aria-hidden="true"></canvas><span class="nm">Color</span><span class="cv"></span><span class="ch" aria-hidden="true">&#8250;</span></button><div class="wd-drawer" hidden><div class="cp-wrap"><div class="row" id="swatches"><button type="button" class="cp-trigger" id="color" aria-label="Custom color" aria-haspopup="dialog" aria-expanded="false" aria-controls="cpPop"><span class="cp-chip"></span><span class="cp-hex" id="hexVal"></span><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button></div></div></div></div>
+          <div class="wd-item" data-row="eyes"><button type="button" class="wd-row" aria-expanded="false"><canvas class="ic" width="56" height="56" aria-hidden="true"></canvas><span class="nm">Eyes</span><span class="cv"></span><span class="ch" aria-hidden="true">&#8250;</span></button><div class="wd-drawer" hidden><div class="wd-grid" data-grid="eyes" role="group" aria-label="eyes"></div></div></div>
+          <div class="wd-item" data-row="mood"><button type="button" class="wd-row" aria-expanded="false"><canvas class="ic" width="56" height="56" aria-hidden="true"></canvas><span class="nm">Mood</span><span class="cv"></span><span class="ch" aria-hidden="true">&#8250;</span></button><div class="wd-drawer" hidden><div class="wd-grid" data-grid="mood" role="group" aria-label="mood"></div></div></div>
+          <div class="wd-item" data-row="markings"><button type="button" class="wd-row" aria-expanded="false"><canvas class="ic" width="56" height="56" aria-hidden="true"></canvas><span class="nm">Markings</span><span class="cv"></span><span class="ch" aria-hidden="true">&#8250;</span></button><div class="wd-drawer" hidden><div class="wd-grid" data-grid="markings" role="group" aria-label="markings"></div></div></div>
+          <div class="wd-item" data-row="size"><button type="button" class="wd-row" aria-expanded="false"><canvas class="ic" width="56" height="56" aria-hidden="true"></canvas><span class="nm">Size</span><span class="cv"></span><span class="ch" aria-hidden="true">&#8250;</span></button><div class="wd-drawer" hidden><div class="wd-grid" data-grid="size" role="group" aria-label="size"></div></div></div>
+          <div class="wd-item" data-row="trail"><button type="button" class="wd-row" aria-expanded="false"><canvas class="ic" width="56" height="56" aria-hidden="true"></canvas><span class="nm">Trail</span><span class="cv"></span><span class="ch" aria-hidden="true">&#8250;</span></button><div class="wd-drawer" hidden><div class="wd-grid" data-grid="trail" role="group" aria-label="trail"></div></div></div>
+          <div class="wd-item" data-row="accessory"><button type="button" class="wd-row" aria-expanded="false"><canvas class="ic" width="56" height="56" aria-hidden="true"></canvas><span class="nm">Accessory</span><span class="cv"></span><span class="ch" aria-hidden="true">&#8250;</span></button><div class="wd-drawer" hidden><div class="wd-grid" data-grid="accessory" role="group" aria-label="accessory"></div></div></div>
+          </div>
+        </section>
+        <section class="module" id="persSec">
+          <div class="mod-head"><h2>Personality</h2></div>
+          <div class="pers-grid">
+            <div class="pers-one"><div class="pers-top"><span class="lab-info"><label class="lab" for="slChatty">Chatty</label><button type="button" class="info" id="infChatty" aria-label="About Chatty" data-tip="How much it talks. Higher means more speech bubbles and chatter."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7.5"/><path d="M8 7v4"/><circle cx="8" cy="4.75" r=".6" fill="currentColor"/></svg></button></span><span class="readout" id="slChattyV"></span></div><input type="range" id="slChatty" min="0" max="100"></div>
+            <div class="pers-one"><div class="pers-top"><span class="lab-info"><label class="lab" for="slBrave">Brave</label><button type="button" class="info" id="infBrave" aria-label="About Brave" data-tip="How it handles Darklings. Brave photons hold their ground longer before running away."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7.5"/><path d="M8 7v4"/><circle cx="8" cy="4.75" r=".6" fill="currentColor"/></svg></button></span><span class="readout" id="slBraveV"></span></div><input type="range" id="slBrave" min="0" max="100"></div>
+            <div class="pers-one"><div class="pers-top"><span class="lab-info"><label class="lab" for="slCurious">Curious</label><button type="button" class="info" id="infCurious" aria-label="About Curious" data-tip="How strongly it is drawn to the light. Higher means it follows the light from farther away."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7.5"/><path d="M8 7v4"/><circle cx="8" cy="4.75" r=".6" fill="currentColor"/></svg></button></span><span class="readout" id="slCuriousV"></span></div><input type="range" id="slCurious" min="0" max="100"></div>
+            <div class="pers-one"><div class="pers-top"><span class="lab-info"><label class="lab" for="slSocial">Social</label><button type="button" class="info" id="infSocial" aria-label="About Social" data-tip="How much it seeks out friends. Higher means it joins groups and makes friends faster."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7.5"/><path d="M8 7v4"/><circle cx="8" cy="4.75" r=".6" fill="currentColor"/></svg></button></span><span class="readout" id="slSocialV"></span></div><input type="range" id="slSocial" min="0" max="100"></div>
+          </div>
+          <div class="pers-one"><div class="pers-top"><span class="lab-info"><label class="lab" for="rate">Heart rate</label><button type="button" class="info" id="infRate" aria-label="About Heart rate" data-tip="How fast its glow pulses. A faster heartbeat also makes it move a little quicker."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7.5"/><path d="M8 7v4"/><circle cx="8" cy="4.75" r=".6" fill="currentColor"/></svg></button></span><span class="readout" id="rateVal"></span></div><input type="range" id="rate" min="40" max="200"></div>
+          <div class="pers-grp">
+            <div class="pers-one"><span class="lab-info"><span class="lab">Voice</span><button type="button" class="info" id="infVoice" aria-label="About Voice" data-tip="The little sound it makes when it talks. None keeps it quiet."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7.5"/><path d="M8 7v4"/><circle cx="8" cy="4.75" r=".6" fill="currentColor"/></svg></button></span><div class="opt-chips" id="voices"><button type="button" class="chip2" data-voice="none" aria-pressed="false">None</button><button type="button" class="chip2" data-voice="pip" aria-pressed="false">Pip</button><button type="button" class="chip2" data-voice="bloop" aria-pressed="false">Bloop</button><button type="button" class="chip2" data-voice="hum" aria-pressed="false">Hum</button><button type="button" class="chip2" data-voice="whistle" aria-pressed="false">Whistle</button></div></div>
+            <div class="pers-one"><span class="lab-info"><span class="lab">Lightspeed</span><button type="button" class="info" id="lsInfo" aria-label="About Lightspeed" data-tip="Lightspeed makes this photon dash across the field in short bursts, up to 4x its normal speed, and each dash uses a little energy."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7.5"/><path d="M8 7v4"/><circle cx="8" cy="4.75" r=".6" fill="currentColor"/></svg></button></span><div class="opt-chips"><button type="button" class="chip2" data-ls="off" aria-pressed="true">Off</button><button type="button" class="chip2" data-ls="on" aria-pressed="false">On</button></div></div>
+          </div>
+        </section>
+      </div>
     </div>
-    <section class="module wd-looks">
-      <div class="mod-head" style="flex: none"><h2>Saved looks <span class="muted" id="looksCount"></span></h2></div>
-      <p class="empty" id="looksEmpty" hidden>No saved looks yet. Save one to reuse it on any photon.</p>
-      <div class="looks-grid" id="looks"></div>
-      <div class="bank-head"><button class="btn tertiary sm" id="save">Save Look</button><form class="look-form" id="lookForm" hidden><input type="text" id="lookName" aria-label="Look name" maxlength="24"><button class="btn tertiary sm" type="button" id="lookCancel">Cancel</button><button class="btn primary sm" type="submit">Save</button></form></div>
-    </section>
   </section>
 </div>
 
@@ -803,6 +870,7 @@
   const W = 960;
   let H = 420;
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const TOUCH = matchMedia("(pointer: coarse)").matches;
   const swatches = ["#ffe066", "#ff6b9a", "#9ad1ff", "#7dffb0", "#c7a6ff", "#ffffff"];
   const moods = [["happy", "Happy"], ["sleepy", "Sleepy"], ["hyper", "Hyper"], ["curious", "Curious"], ["shy", "Shy"], ["grumpy", "Grumpy"], ["cheeky", "Cheeky"], ["dreamy", "Dreamy"], ["brave", "Brave"]];
   const EYES = [["bean", "Bean"], ["round", "Round"], ["star", "Star"], ["glint", "Glint"], ["heart", "Heart"], ["dot", "Dot"], ["diamond", "Diamond"], ["ring", "Ring"], ["moon", "Crescent"], ["cat", "Cat"]];
@@ -1362,7 +1430,7 @@
   function setLight(on) {
     light.on = on;
     $("lightBtn").setAttribute("aria-checked", on); $("lightState").textContent = on ? "On" : "Off";
-    $("lightHint").textContent = on ? "Move your cursor over the field, or drag to paint a light trail. Press L or Esc to turn it off." : "Turn it on, then move your cursor over the field. Photons drift toward the light. Drag to paint a shape they orbit or follow. Shortcut: L.";
+    $("lightHint").textContent = on ? (TOUCH ? "Touch and hold the field to shine the light, or drag to paint a trail. Tap Light again to turn it off." : "Move your cursor over the field, or drag to paint a light trail. Press L or Esc to turn it off.") : (TOUCH ? "Turn it on, then touch and hold the field. Photons drift toward the light. Drag to paint a shape they orbit or follow." : "Turn it on, then move your cursor over the field. Photons drift toward the light. Drag to paint a shape they orbit or follow. Shortcut: L.");
     canvas.classList.toggle("lit", on);
     log(on ? "Turned on the light" : "Turned off the light");
   }
@@ -1472,7 +1540,7 @@
     const row = e.target.closest("[data-select]");
     if (row) { selectedId = +row.dataset.select; renderField(); }
   };
-  $("newPhoton").onclick = () => guard(() => { openNew(); showPage("edit"); $("pName").focus(); $("pName").select(); });
+  $("newPhoton").onclick = () => guard(() => { openNew(); showPage("edit"); $("pName").focus({ preventScroll: true }); $("pName").select(); });
   function renderField() {
     const fl = inFlight(), sel = byId(selectedId);
     if (!sel) { selectedId = null; }
@@ -2218,6 +2286,17 @@
     panning = null; const [x, y] = toWorld(e), l = painting.pts[painting.pts.length - 1];
     if (Math.hypot(x - l.x, y - l.y) > 7) { painting.pts.push({ x, y }); if (painting.pts.length > 180) { painting.pts.shift(); } if (painting.pts.length > 3) { panMoved = true; } }
   });
+  const ptrs = new Map(); let pinchD = 0;
+  canvas.addEventListener("pointerdown", (e) => { ptrs.set(e.pointerId, [e.clientX, e.clientY]); pinchD = 0; });
+  canvas.addEventListener("pointermove", (e) => {
+    if (!ptrs.has(e.pointerId)) { return; }
+    ptrs.set(e.pointerId, [e.clientX, e.clientY]); if (ptrs.size !== 2) { return; }
+    const [a, b] = [...ptrs.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+    if (pinchD) { zoomTo(view.z * d / pinchD, toWorld({ clientX: (a[0] + b[0]) / 2, clientY: (a[1] + b[1]) / 2 })); }
+    pinchD = d; panning = null; painting = null; panMoved = true;
+  });
+  const endPtr = (e) => { ptrs.delete(e.pointerId); pinchD = 0; if (!ptrs.size) { setTimeout(() => { panMoved = false; }, 60); } };
+  canvas.addEventListener("pointerup", endPtr); canvas.addEventListener("pointercancel", endPtr);
   window.addEventListener("pointerup", () => { if (painting) { const moved = painting.pts.length > 3; endPaint(); if (moved) { setTimeout(() => { panMoved = false; }, 30); } } });
 
   /* Requests */
@@ -2307,7 +2386,7 @@
   function startDance() {
     if (!inFlight().length) { return; }
     getAudio(); stopBgm(.3); game = { type: "dance", t: 0, bpm: 104, total: 28, beat: -1, ph: 0, perfect: 0, good: 0, lastScored: -1 };
-    setBanner("Dance party! Tap Space or click on the beat", 4); updateBtns();
+    setBanner((TOUCH ? "Dance party! Tap the field on the beat" : "Dance party! Tap Space or click on the beat"), 4); updateBtns();
   }
   const resumeBgm = () => { if (audioUnlocked && !bgm) { startBgm(); } };
   function bassNote(n) {
@@ -2428,7 +2507,7 @@
     fl.forEach(p => { if (p.hug) { p.hug.t -= dt / fl.length; if (p.hug.t <= 0) { p.hug = null; } } });
   }
   function playUI() {
-    updateBtns();
+    updateBtns(); fitStats();
     const s = byId(selectedId);
     if (s && s.launched) {
       $("target").innerHTML += ' <span class="muted">· likes ' + snackOf(s)[0] + "</span>";
@@ -2513,7 +2592,7 @@
       ctx.strokeStyle = "rgba(255,179,71," + (.4 + .5 * pulse).toFixed(2) + ")"; ctx.lineWidth = 3 * fs; ctx.beginPath(); ctx.arc(cx, cy, (16 + 10 * pulse) * fs, 0, TAU); ctx.stroke();
       ctx.fillStyle = "#ffb347"; ctx.beginPath(); ctx.arc(cx, cy, 6 * fs, 0, TAU); ctx.fill();
       ctx.font = 11 * fs + "px 'JetBrains Mono', monospace"; ctx.fillStyle = "#f2ede4";
-      ctx.fillText(cnt ? "GET READY" : "TAP SPACE ON THE BEAT · " + g.perfect + " perfect · " + g.good + " good", cx, cy - 30 * fs);
+      ctx.fillText(cnt ? "GET READY" : (TOUCH ? "TAP THE FIELD ON THE BEAT" : "TAP SPACE ON THE BEAT") + " · " + g.perfect + " perfect · " + g.good + " good", cx, cy - 30 * fs);
     }
     if (banner) {
       ctx.font = "700 " + 15 * fs + "px 'Rajdhani', sans-serif"; const w = ctx.measureText(banner.text).width + 28 * fs, bx = view.cx - w / 2, by = top + 14 * fs;
@@ -2652,7 +2731,7 @@
       if (g.phase === "intro" && g.t <= 0) { chorusRound(); }
       else if (g.phase === "pause" && g.t <= 0) { chorusRound(); }
       else if (g.phase === "play" && g.t <= 0) {
-        if (g.i < g.seq.length) { const si = g.i++; lightPad(g.seq[si], g.teach); g.t = g.delays[si]; } else { g.phase = "input"; g.pos = 0; setBanner("Your turn: repeat it (click the pads or press 1-4)", 3); }
+        if (g.i < g.seq.length) { const si = g.i++; lightPad(g.seq[si], g.teach); g.t = g.delays[si]; } else { g.phase = "input"; g.pos = 0; setBanner("Your turn: repeat it (" + (TOUCH ? "tap the pads" : "click the pads or press 1-4") + ")", 3); }
       }
     } else if (g.type === "defense") {
       if (!pylon.beacon) { pylon.charge = Math.min(100, pylon.charge + (20 - 100 / CHARGE_S) * dt); }
@@ -2711,6 +2790,19 @@
   }
   $("chorusBtn").onclick = () => { if (game && game.type === "chorus") { cancelGame(); return; } cancelGame(); startChorus(); };
   document.addEventListener("keydown", (e) => { if (game && game.type === "chorus" && /^[1-4]$/.test(e.key) && !$("pageField").hidden && !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) { e.preventDefault(); chorusTap(+e.key - 1); } });
+  function fitTitle() {
+    const h = $("editTitle"), w = h.querySelector(".tw"); if (!w || $("pageEdit").hidden) { return; }
+    const wrapped = () => Math.abs(h.getBoundingClientRect().top - $("back").getBoundingClientRect().top) > 8 || h.getBoundingClientRect().height > 40;
+    w.hidden = false; if (wrapped()) { w.hidden = true; }
+  }
+  new ResizeObserver(fitTitle).observe(document.querySelector(".edit-head"));
+  function fitStats() {
+    const row = document.querySelector(".stats"); if (!row || $("pageField").hidden) { return; }
+    const cards = [...row.querySelectorAll(".stat")]; cards.forEach(c => { c.hidden = false; });
+    for (let i = cards.length - 1; i > 0 && row.scrollWidth > row.clientWidth + 1; i--) { cards[i].hidden = true; }
+  }
+  new ResizeObserver(fitStats).observe(document.querySelector(".greet"));
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(fitStats); }
   window.lumiPlay = { all: () => photons, visitor: () => photons.find(p => p.visitor), dark: () => spawnSkitters(), race: (i, j) => { cancelGame(); game = { type: "race", phase: "pick", picks: [byId(i), byId(j)] }; startRace(); updateBtns(); }, startEvent, dropTreat, earn, get state() { return { stardust, game, evt, treats: treats.length, strokes: strokes.length, meteors: meteors.length, lvls }; } };
   document.querySelectorAll(".dustN").forEach(e => { e.textContent = String(stardust); }); setBanner("Click empty space to drop a treat", 6);
   let uiTick = 0;
@@ -2795,7 +2887,7 @@
   function renderEdit() {
     if (!draft) { return; }
     const d = draft, v = d.v, isNew = d.mode === "new", p = isNew ? null : byId(d.id), isDirty = dirty();
-    $("editTitle").textContent = isNew ? "Create Photon" : "Edit Photon";
+    $("editTitle").innerHTML = (isNew ? "Create" : "Edit") + "<span class=\"tw\"> Photon</span>"; fitTitle();
     const status = isNew ? "Draft" : p.launched ? "In field" : "At home";
     $("flightPill").textContent = status; $("flightPill").className = "pill" + (isNew ? " draft" : p.launched ? " live" : "");
     $("undo").disabled = d.past.length === 0; $("redo").disabled = d.future.length === 0;
@@ -2807,7 +2899,7 @@
     const cost = pendingCost(v), over = cost > stardust;
     $("launchBtn").disabled = nameBad || over || (saveOnly && !isDirty);
     $("launchWrap").dataset.tip = nameBad ? "Give this photon a name first" : over ? "Not enough stardust. This look costs " + cost + " and you have " + stardust + ". Pick free options or earn more stardust." : saveOnly && !isDirty ? "No changes to save" : "";
-    $("launchBtn").textContent = isNew ? "Create & Launch" : saveOnly ? "Save" : "Save & Launch";
+    $("launchBtn").innerHTML = isNew ? "Create<span class=\"cl\"> &amp; Launch</span>" : saveOnly ? "Save" : "Save<span class=\"cl\"> &amp; Launch</span>";
     $("dirtyPill").hidden = isNew || !isDirty;
     if (v.lightspeed && !$("pageEdit").hidden) { if (!lsPlayed) { startDash(); lsPlayed = true; } } else if (!v.lightspeed) { lsPlayed = false; }
     $("rate").value = v.rate; $("rateVal").textContent = v.rate + " bpm";
@@ -2901,7 +2993,7 @@
   $("pName").oninput = (e) => change({ name: e.target.value }, "name");
   $("pBio").oninput = (e) => change({ bio: e.target.value }, "bio");
   $("genBio").onclick = () => change({ bio: generateBio(draft.v) });
-  $("genName").onclick = () => { change({ name: generateName(draft.v) }); $("pName").focus(); $("pName").select(); };
+  $("genName").onclick = () => { change({ name: generateName(draft.v) }); $("pName").focus({ preventScroll: true }); $("pName").select(); };
   $("pDob").onchange = (e) => { if (e.target.value) { change({ dob: e.target.value }, "dob"); } };
   $("pConst").onchange = (e) => change({ constellation: e.target.value });
   $("pName").onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); } };
